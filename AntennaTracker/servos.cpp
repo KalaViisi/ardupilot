@@ -236,27 +236,8 @@ void Tracker::update_yaw_onoff_servo(float yaw) const
 /**
    update the yaw continuous rotation servo
  */
-
-    static constexpr int DEAD_ZONE = 200;  // Define the dead zone in microseconds
-    static constexpr int NEUTRAL_PWM = 1500;  // The neutral PWM signal for the servo
-
 void Tracker::update_yaw_cr_servo(float yaw)
 {
-    float yaw_out = constrain_float(
-        -g.pidYaw2Srv.update_error(nav_status.angle_error_yaw, G_Dt), 
-        -g.yaw_range * 100/2, 
-        g.yaw_range * 100/2
-    );
-
-    // Apply dead zone correction
-    if (yaw_out > NEUTRAL_PWM - DEAD_ZONE && yaw_out < NEUTRAL_PWM + DEAD_ZONE) {
-        // If inside dead zone, force it to move past the threshold
-        if (yaw_out > NEUTRAL_PWM) {
-            yaw_out = NEUTRAL_PWM + DEAD_ZONE;
-        } else {
-            yaw_out = NEUTRAL_PWM - DEAD_ZONE;
-        }
-    }
-
+    const float yaw_out = constrain_float(-g.pidYaw2Srv.update_error(nav_status.angle_error_yaw, G_Dt), -g.yaw_range * 100/2, g.yaw_range * 100/2);
     SRV_Channels::set_output_scaled(SRV_Channel::k_tracker_yaw, yaw_out);
 }
